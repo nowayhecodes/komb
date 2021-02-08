@@ -1,5 +1,7 @@
 package komb
 
+import scala.annotation.tailrec
+
 sealed trait ValueT
 
 case class Num(v: BigDecimal) extends ValueT
@@ -59,6 +61,7 @@ object Interpreter {
     case _ => throw new IllegalArgumentException
   }
 
+  @tailrec
   private def evalAll(env: Env, comb: List[ExprT]):(Env, ExprT) = comb match {
     case List() => (env, NullExpr())
     case h :: t => {
