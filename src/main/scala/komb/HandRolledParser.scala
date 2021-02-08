@@ -35,6 +35,26 @@ object HandRolledParser {
     @tailrec
     def doTokenize(acc: List[Token], cs: List[Char]): List[Token] = cs match {
       case w :: t if w.isWhitespace => doTokenize(acc, t)
+      case '(' :: t => doTokenize(TOpen() :: acc, t)
+      case ')' :: t => doTokenize(TClose() :: acc, t)
+      case '"' :: t =>
+        val (s, rst) = string("", t)
+        doTokenize(TString(s) :: acc, rst)
+      case '-' :: d :: t if d.isDigit =>
+        val (n, rst) = token("-" + d, t)
+        doTokenize(TNumber(n) :: acc, rst)
+      case '+' :: d :: t if d.isDigit =>
+        val (n, rst) = token(d.toString, t)
+        doTokenize(TNumber(n) :: acc, rst)
+      case d :: t if d.isDigit =>
+        val (n, rst) = token(d.toString, t)
+        doTokenize(TNumber(n) :: acc, rst)
+      case s :: t =>
+        val (sym, rst) = token(s.toString, t)
+        doTokenize(TSymbol(sym) :: acc, rst)
+      case List() => acc.reverse
     }
+
+    doTokenize(List(), source)
   }
 }
