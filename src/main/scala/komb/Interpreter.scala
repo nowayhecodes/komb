@@ -52,17 +52,8 @@ object Interpreter {
       }
   }
 
-  private def apply(f: (Env, List[ExprT]) => (Env, ExprT),
-                    args: List[ExprT], env: Env) =
-    f(env, args)
-
-  private def bindArgs(env: Env, arg: ValueT, expr: ExprT) = arg match {
-    case Name(name) => env.addEntry(n -> eval(env, expr)._2)
-    case _ => throw new IllegalArgumentException
-  }
-
   @tailrec
-  private def evalAll(env: Env, comb: List[ExprT]):(Env, ExprT) = comb match {
+  def evalAll(env: Env, comb: List[ExprT]): (Env, ExprT) = comb match {
     case List() => (env, NullExpr())
     case h :: t => {
       val (nEnv, res) = eval(env, h)
@@ -72,5 +63,14 @@ object Interpreter {
         case _ => evalAll(nEnv, t)
       }
     }
+  }
+
+  private def apply(f: (Env, List[ExprT]) => (Env, ExprT),
+                    args: List[ExprT], env: Env) =
+    f(env, args)
+
+  private def bindArgs(env: Env, arg: ValueT, expr: ExprT) = arg match {
+    case Name(name) => env.addEntry(n -> eval(env, expr)._2)
+    case _ => throw new IllegalArgumentException
   }
 }
